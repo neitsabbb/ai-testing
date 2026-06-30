@@ -1,0 +1,11 @@
+.env
+node_modules/
+test-results/
+playwright-report/
+playwright/.cache/
+blob-report/
+.locator-cache.json
+
+# Local tooling artifacts
+.claude/settings.local.json
+.playwright-mcp/
