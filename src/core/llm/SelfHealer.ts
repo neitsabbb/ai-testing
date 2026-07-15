@@ -125,58 +125,28 @@ export default class SelfHealer {
     // Quand il est ABSENT, le seul indice est la valeur technique cassée : on
     // s'appuie dessus et on ne demande surtout PAS de l'ignorer (sinon plus
     // aucun signal). On branche donc les deux cas.
-    const context = broken.friendlyName
-      ? `# CONTEXTE
-Tu cherches un élément par sa FONCTION (contexte sémantique) :
-  → "${broken.friendlyName}"
-Le locator utilisé jusqu'ici — type "${broken.type}", valeur "${broken.value}" —
-ne le trouve plus dans la source (tout en bas). Sa valeur technique a pu être
-renommée et peut désormais n'avoir AUCUN rapport avec la fonction : ne t'y fie
-pas, fie-toi à la FONCTION décrite.
+    const cible = broken.friendlyName
+      ? `Cible = l'élément dont la FONCTION est : "${broken.friendlyName}".
+Son ancien locator (type "${broken.type}", valeur "${broken.value}") a pu être
+renommé — fie-toi à la FONCTION, pas à cette valeur.`
+      : `Cible = l'élément que visait le locator introuvable (type "${broken.type}",
+valeur "${broken.value}"). Cette valeur est ton seul indice.`;
 
-# TÂCHE
-Dans la source, trouve l'élément qui remplit CETTE fonction, même si ses
-id/classes/attributs sont complètement différents de l'ancien locator. Propose
-ensuite des locators alternatifs pour LUI, du plus robuste au moins robuste.
-Uniquement des locators réellement présents dans la source, qui désignent UN
-SEUL élément.`
-      : `# CONTEXTE
-Le locator de type "${broken.type}" et de valeur "${broken.value}" est
-INTROUVABLE dans la source de la page (tout en bas). Sa valeur est le seul
-indice disponible sur l'élément visé.
+    return `Tu répares un locator de test cassé à partir du HTML (tout en bas).
+${cible}
+Identifie CET élément précis dans la source et donne des locators alternatifs
+pour LUI, du plus robuste au moins robuste. Uniquement des valeurs présentes
+dans la source, désignant UN SEUL élément.
 
-# TÂCHE
-Dans la source, retrouve l'élément que ce locator visait et propose des locators
-alternatifs pour LUI, du plus robuste au moins robuste. Uniquement des locators
-réellement présents dans la source, qui désignent UN SEUL élément.`;
+Réponds par CE JSON, rien d'autre : {"locators":[{"type","value","name"?}, ...]}
+- type : "testId" | "role" | "label" | "placeholder" | "text" | "altText" | "title" | "locator"
+- value : le rôle ARIA pour "role" ; un CSS/XPath pour "locator" ; sinon le texte/label/placeholder recopié EXACTEMENT.
+- name : nom accessible, OBLIGATOIRE si type "role" (sinon "textbox" est ambigu), interdit sinon.
 
-    return `# RÔLE
-Tu répares des locators de test web cassés à partir du HTML de la page.
-
-${context}
-
-# FORMAT
-Un objet JSON {"locators": [...]}, chaque entrée {"type", "value", "name"?} :
-- "type"  : "role" | "label" | "placeholder" | "text" | "testId" | "altText"
-            | "title" | "locator". Privilégie role/label/text à "locator".
-- "value" : rôle ARIA pour "role" (ex: "button") ; sélecteur CSS/XPath pour
-            "locator" ; sinon le texte/label/placeholder de l'élément.
-- "name"  : nom accessible. OBLIGATOIRE pour "role" (sans lui "role":"textbox"
-            est ambigu), interdit ailleurs.
-
-# RÈGLES
-- Inclus TOUJOURS au moins un locator technique copié EXACTEMENT depuis la
-  source quand l'élément a un data-testid ou un id : pour un data-testid, utilise
-  {"type":"testId","value":"..."} ; pour un id, {"type":"locator","value":"#id"}.
-  C'est l'ancre la plus fiable.
-- Pour "text"/"role.name", recopie le texte EXACT visible dans la source, sans
-  l'inventer ni le compléter.
-- N'utilise PAS "id"/"name"/"css"/"xpath" : passe par {"type":"locator", ...}.
-- Aucune explication, aucun commentaire, aucun bloc markdown (pas de \`\`\`).
-- Réponds UNIQUEMENT par l'objet JSON brut.
-
-# EXEMPLE
-{"locators":[{"type":"role","value":"button","name":"Se connecter"},{"type":"label","value":"Mot de passe"},{"type":"locator","value":"[name='login']"}]}
+Priorité absolue : si la balise cible porte un "data-testid", le 1ᵉʳ locator DOIT
+être {"type":"testId","value":"<recopié exact>"} (ne le remplace jamais par un
+sélecteur reconstruit). Puis un "id" en {"type":"locator","value":"#id"} s'il existe.
+Sinon role/label/placeholder/text. N'invente aucune valeur absente de la source.
 
 # SOURCE DE LA PAGE
 ${pageSource}`;

@@ -45,12 +45,20 @@ export default class LLMClient {
     });
 
     if (!res.ok) {
-      throw new Error(
-        `Ollama a renvoyé ${res.status} (Ollama est-il démarré ?)`,
-      );
+      const body = await res.text();
+      console.error(body);
+
+      throw new Error(`Ollama a renvoyé ${res.status}: ${body}`);
     }
 
     const data = (await res.json()) as { response: string };
+
+    console.log("Call LLM", {
+      model: this.model,
+      prompt: prompt.slice(0, 200) + (prompt.length > 200 ? "..." : ""),
+      response:
+        data.response.slice(0, 200) + (data.response.length > 200 ? "..." : ""),
+    });
     return data.response;
   }
 }

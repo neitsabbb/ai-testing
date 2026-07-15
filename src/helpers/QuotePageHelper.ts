@@ -18,7 +18,7 @@ export default class QuotePageHelper extends BaseHelper {
   private readonly el = {
     navOffers: locator("#navOffers_tag", "onglet Offres"), // page
     newQuote: testId("new-quote-button", "bouton nouveau devis"), // frame, cassé
-    search: testId("datagrid-global-search-input"), // frame, stable (readiness)
+    search: testId("datagrid-global-search-input"),
     grid: testId("quotes"), // frame, le tableau des devis
   };
 

@@ -13,9 +13,9 @@ function uniqueReference(): string {
 /** Statut attendu d'un devis fraîchement créé (cf. turing : statusV3.toSend). */
 const STATUS_TO_SEND = "A envoyer";
 
-test.beforeEach(() => {
-  if (existsSync(DEFAULT_CACHE_FILE)) rmSync(DEFAULT_CACHE_FILE);
-});
+// test.beforeEach(() => {
+//   if (existsSync(DEFAULT_CACHE_FILE)) rmSync(DEFAULT_CACHE_FILE);
+// });
 
 test("self-healing : crée un devis de bout en bout malgré 3 locators cassés", async ({
   page,
@@ -61,7 +61,9 @@ test("self-healing : crée un devis de bout en bout malgré 3 locators cassés",
   await quotes.searchForQuote(reference);
   await expect(async () => {
     await expect(quotes.grid()).toContainText(reference, { timeout: 3000 });
-    await expect(quotes.grid()).toContainText(STATUS_TO_SEND, { timeout: 3000 });
+    await expect(quotes.grid()).toContainText(STATUS_TO_SEND, {
+      timeout: 3000,
+    });
   }).toPass({ timeout: 60_000 });
 
   // Le cache a bien persisté les alternatives réparées pour les prochains runs.
